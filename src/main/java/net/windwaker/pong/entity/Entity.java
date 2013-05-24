@@ -71,6 +71,10 @@ public class Entity {
 		return height;
 	}
 
+	public void invertVelocity() {
+		setVelocity(-velocityX, -velocityY);
+	}
+
 	public void setVelocity(float velocityX, float velocityY) {
 		this.velocityX = velocityX;
 		this.velocityY = velocityY;

@@ -2,6 +2,7 @@ package net.windwaker.pong;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import net.windwaker.pong.entity.Entity;
@@ -10,6 +11,9 @@ import net.windwaker.pong.entity.controller.BallController;
 import net.windwaker.pong.entity.controller.paddle.PaddleController;
 import net.windwaker.pong.entity.controller.paddle.PlayerPaddleController;
 import net.windwaker.pong.input.InputManager;
+import net.windwaker.pong.resource.ResourceManager;
+import net.windwaker.pong.resource.sound.Sound;
+import net.windwaker.pong.resource.sound.SoundLoader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.lwjgl.LWJGLException;
@@ -18,27 +22,69 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_LINES;
+import static org.lwjgl.opengl.GL11.GL_LINE_STIPPLE;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glLineStipple;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glOrtho;
+import static org.lwjgl.opengl.GL11.glVertex2f;
 
 public class WindPongGame {
-	public static final int WIDTH = 800;
-	public static final int HEIGHT = 450;
+	private int width, height;
 	private boolean debugMode;
 	private long lastFrame;
 	private final Logger logger = Logger.getLogger("WindPong");
 	private final InputManager inputManager = new InputManager(this);
 	private final EntityManager entityManager = new EntityManager(this);
+	private final ResourceManager resourceManager = new ResourceManager();
 	private PaddleController leftPaddle;
 	private PaddleController rightPaddle;
 	private BallController ball;
 	private GameState state = GameState.INTRO;
 	private int round = 1;
+	private Sound music;
+	private Sound[] blips = new Sound[2];
 
 	public GameState getState() {
 		return state;
 	}
 
+	public Sound getMusic() {
+		return music;
+	}
+
 	public void setState(GameState state) {
+		boolean introTransition = false;
+		if (this.state == GameState.INTRO) {
+			createEntities();
+			resetEntityPositions();
+			introTransition = true;
+		}
+
+		switch (state) {
+			case PAUSED:
+				debug("Paused the game.");
+				if (music.isPlaying() && !introTransition) {
+					debug("Pausing music.");
+					music.pause();
+				}
+				break;
+			case PLAYING:
+				debug("Resume playing.");
+				if (!music.isPlaying()) {
+					debug("Playing music.");
+					music.play();
+				}
+				break;
+		}
 		this.state = state;
 	}
 
@@ -53,11 +99,26 @@ public class WindPongGame {
 	public void newRound() {
 		state = GameState.PAUSED;
 		resetEntityPositions();
+		music.rewind();
+		music.play();
 		debug("Round: " + ++round);
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
 	}
 
 	public boolean isDebugMode() {
 		return debugMode;
+	}
+
+	public void playRandomBlip() {
+		Random random = new Random();
+		blips[random.nextInt(2)].play();
 	}
 
 	public void debug(String msg) {
@@ -78,13 +139,31 @@ public class WindPongGame {
 		return entityManager;
 	}
 
-	public void start(boolean debugMode) {
-		this.debugMode = debugMode;
+	public ResourceManager getResourceManager() {
+		return resourceManager;
+	}
+
+	public void start(WindPongArguments args) {
+
+		debugMode = args.isDebugMode();
+		width  = args.getWidth();
+		height  = args.getHeight();
+
 		unpackNatives();
 		createWindow();
 		initGl();
 		createBall();
 		initBindings();
+
+		// setup sound system
+		Sound.initAl();
+		resourceManager.registerLoader(new SoundLoader());
+		music = (Sound) resourceManager.getResource("sound://sounds/intro.wav");
+		music.setLooping(true);
+		music.play();
+		blips[0] = (Sound) resourceManager.getResource("sound://sounds/blip_1.wav");
+		blips[1] = (Sound) resourceManager.getResource("sound://sounds/blip_2.wav");
+
 		startGameLoop();
 	}
 
@@ -107,15 +186,13 @@ public class WindPongGame {
 			if (!pressed) {
 				switch (state) {
 					case INTRO:
-						state = GameState.PAUSED;
-						createEntities();
-						resetEntityPositions();
+						setState(GameState.PAUSED);
 						break;
 					case PAUSED:
-						state = GameState.PLAYING;
+						setState(GameState.PLAYING);
 						break;
 					case PLAYING:
-						state = GameState.PAUSED;
+						setState(GameState.PAUSED);
 						break;
 				}
 			}
@@ -147,8 +224,17 @@ public class WindPongGame {
 	}
 
 	private void update(float dt) {
+		// get input
 		inputManager.poll();
-		entityManager.update(dt);
+
+		// do logic
+		if (state != GameState.PAUSED) {
+			entityManager.checkCollisions();
+			entityManager.update(dt);
+		}
+
+		// render
+		entityManager.render();
 		renderMidLine();
 	}
 
@@ -191,7 +277,7 @@ public class WindPongGame {
 	private void createWindow() {
 		debug("Creating window...");
 		try {
-			Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT));
+			Display.setDisplayMode(new DisplayMode(width, height));
 			Display.create();
 		} catch (LWJGLException e) {
 			e.printStackTrace();
@@ -254,6 +340,7 @@ public class WindPongGame {
 
 	public static void main(String[] args) {
 		WindPongGame game = new WindPongGame();
-		game.start(args.length > 0 && (args[0].equalsIgnoreCase("-d") || args[0].equals("--debug")));
+		WindPongArguments pongArgs = WindPongArguments.parse(args);
+		game.start(pongArgs);
 	}
 }

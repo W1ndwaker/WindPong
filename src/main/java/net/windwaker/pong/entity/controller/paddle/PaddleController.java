@@ -36,8 +36,9 @@ public abstract class PaddleController extends RectangularController {
 
 	@Override
 	public void attached() {
-		float width = 10 / (float) WindPongGame.WIDTH;
-		float height = 100 / (float) WindPongGame.HEIGHT;
+		WindPongGame game = getOwner().getGame();
+		float width = 10 / (float) game.getWidth();
+		float height = 100 / (float) game.getHeight();
 		getOwner().setBounds(width, height);
 	}
 }

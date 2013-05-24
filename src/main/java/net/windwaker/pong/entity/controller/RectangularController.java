@@ -3,7 +3,10 @@ package net.windwaker.pong.entity.controller;
 import net.windwaker.pong.entity.Controller;
 import net.windwaker.pong.entity.Entity;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_QUADS;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glVertex2f;
 
 public abstract class RectangularController extends Controller {
 	@Override
