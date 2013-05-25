@@ -16,6 +16,19 @@
 		<commons-lang3.version>3.1</commons-lang3.version>
 	</properties>
 
+	<licenses>
+		<license>
+			<name>GNU Lesser General Public License</name>
+			<url>http://www.gnu.org/licenses/lgpl.txt</url>
+		</license>
+	</licenses>
+
+	<scm>
+		<developerConnection>scm:git:git@github.com:W1ndwaker/WindPong.git</developerConnection>
+		<connection>smc:git:git://github.com/W1ndwaker/WindPong.git</connection>
+		<url>https://github.com/W1ndwaker/WindPong</url>
+	</scm>
+
 	<repositories>
 		<repository>
 			<id>spout-repo</id>
@@ -54,6 +67,12 @@
 		<defaultGoal>clean package install</defaultGoal>
 		<resources>
 			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>LICENSE.txt</include>
+				</includes>
+			</resource>
+			<resource>
 				<directory>src/main/resources</directory>
 				<includes>
 					<include>**/*</include>
@@ -61,6 +80,32 @@
 			</resource>
 		</resources>
 		<plugins>
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<version>1.10.b1</version>
+				<executions>
+					<execution>
+						<configuration>
+							<quiet>true</quiet>
+							<encoding>UTF-8</encoding>
+							<strictCheck>true</strictCheck>
+							<header>${basedir}/HEADER.txt</header>
+							<mapping>
+								<java>SLASHSTAR_STYLE</java>
+							</mapping>
+							<includes>
+								<include>src/main/java/**</include>
+								<include>src/test/java/**</include>
+							</includes>
+						</configuration>
+						<phase>clean</phase>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
