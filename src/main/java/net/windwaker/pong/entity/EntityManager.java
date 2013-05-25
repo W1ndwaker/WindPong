@@ -23,7 +23,7 @@ import net.windwaker.pong.WindPongGame;
  * Handles entities.
  */
 public class EntityManager {
-	private final Set<Entity> entities = new HashSet<>();
+	private final Set<Entity> entities = new HashSet<Entity>();
 	private int lastId = -1;
 	private final WindPongGame game;
 

@@ -34,23 +34,14 @@ public class WindPongArguments {
 		WindPongArguments wpa = new WindPongArguments();
 		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
-			switch (arg) {
-				case "--debug":
-				case "-d":
-					wpa.debugMode = true;
-					break;
-				case "--width":
-				case "-w":
-					wpa.width = Integer.parseInt(args[i + 1]);
-					break;
-				case "--height":
-				case "-h":
-					wpa.height = Integer.parseInt(args[i + 1]);
-					break;
-				case "-dc":
-				case "--drawcurves":
-					wpa.drawCurves = true;
-					break;
+			if (arg.equalsIgnoreCase("--debug") || arg.equalsIgnoreCase("-d")) {
+				wpa.debugMode = true;
+			} else if (arg.equalsIgnoreCase("--width") || arg.equalsIgnoreCase("-w")) {
+				wpa.width = Integer.parseInt(args[i + 1]);
+			} else if (arg.equalsIgnoreCase("--height") || arg.equalsIgnoreCase("-h")) {
+				wpa.height = Integer.parseInt(args[i + 1]);
+			} else if (arg.equalsIgnoreCase("--drawcurves") || arg.equalsIgnoreCase("-dc")) {
+				wpa.drawCurves = true;
 			}
 		}
 		return wpa;

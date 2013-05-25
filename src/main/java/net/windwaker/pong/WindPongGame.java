@@ -24,6 +24,7 @@ import net.windwaker.pong.entity.controller.BallController;
 import net.windwaker.pong.entity.controller.paddle.PaddleController;
 import net.windwaker.pong.entity.controller.paddle.PlayerPaddleController;
 import net.windwaker.pong.input.InputManager;
+import net.windwaker.pong.input.KeyHandler;
 import net.windwaker.pong.resource.ResourceManager;
 import net.windwaker.pong.resource.sound.Sound;
 import net.windwaker.pong.resource.sound.SoundLoader;
@@ -262,18 +263,21 @@ public class WindPongGame {
 	}
 
 	private void initBindings() {
-		inputManager.bind(Keyboard.KEY_RETURN, (pressed, c) -> {
-			if (!pressed) {
-				switch (state) {
-					case INTRO:
-						setState(GameState.PAUSED);
-						break;
-					case PAUSED:
-						setState(GameState.PLAYING);
-						break;
-					case PLAYING:
-						setState(GameState.PAUSED);
-						break;
+		inputManager.bind(Keyboard.KEY_RETURN, new KeyHandler() {
+			@Override
+			public void handle(boolean pressed, char c) {
+				if (!pressed) {
+					switch (state) {
+						case INTRO:
+							setState(GameState.PAUSED);
+							break;
+						case PAUSED:
+							setState(GameState.PLAYING);
+							break;
+						case PLAYING:
+							setState(GameState.PAUSED);
+							break;
+					}
 				}
 			}
 		});

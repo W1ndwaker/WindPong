@@ -28,7 +28,7 @@ import net.windwaker.pong.exception.resource.LoaderNotFoundException;
  * Resource management.
  */
 public class ResourceManager {
-	private final Set<ResourceLoader<?>> loaders = new HashSet<>();
+	private final Set<ResourceLoader<?>> loaders = new HashSet<ResourceLoader<?>>();
 
 	/**
 	 * Returns all registered loaders.

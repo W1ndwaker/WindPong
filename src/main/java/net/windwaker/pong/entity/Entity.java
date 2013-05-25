@@ -27,7 +27,7 @@ import net.windwaker.pong.exception.entity.ControllerParentMismatchException;
  */
 public class Entity {
 	private final int id;
-	private final Set<Controller> controllers = new HashSet<>();
+	private final Set<Controller> controllers = new HashSet<Controller>();
 	private float x, y;
 	private float width, height;
 	private float velocityX, velocityY;
