@@ -3,10 +3,7 @@ package net.windwaker.pong.entity.controller;
 import net.windwaker.pong.entity.Controller;
 import net.windwaker.pong.entity.Entity;
 
-import static org.lwjgl.opengl.GL11.GL_QUADS;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glVertex2f;
+import static org.lwjgl.opengl.GL11.*;
 
 public abstract class RectangularController extends Controller {
 	@Override
@@ -18,7 +15,8 @@ public abstract class RectangularController extends Controller {
 		float width = owner.getWidth();
 		float height = owner.getHeight();
 
-		glBegin(GL_QUADS); {
+		glBegin(GL_QUADS);
+		{
 			glVertex2f(x, y); // top left
 			glVertex2f(x + width, y); // top right
 			glVertex2f(x + width, y - height); // bottom right

@@ -3,7 +3,7 @@ package net.windwaker.pong.resource.sound;
 import java.io.InputStream;
 
 import net.windwaker.pong.resource.ResourceLoader;
-import org.lwjgl.util.WaveData;
+import org.lwjgl.util.*;
 
 import static org.lwjgl.openal.AL10.*;
 
@@ -23,14 +23,12 @@ public class SoundLoader extends ResourceLoader<Sound> {
 
 		// create the metadata and bind it to the buffer
 		WaveData data = WaveData.create(in);
-		System.out.println("Sound id: " + bufferId);
 		alBufferData(bufferId, data.format, data.data, data.samplerate);
 		data.dispose();
 
 		// bind the sound to a source
 		// sources will be static so no need to encapsulate this anywhere else
 		int sourceId = alGenSources();
-		System.out.println("Source id: " + sourceId);
 		Sound.checkErrors();
 		Sound sound = new Sound(bufferId, sourceId);
 		sound.init();

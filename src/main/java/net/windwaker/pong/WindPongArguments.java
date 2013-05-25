@@ -1,12 +1,21 @@
 package net.windwaker.pong;
 
+/**
+ * Arguments to start the application with.
+ */
 public class WindPongArguments {
-	private boolean debugMode = false;
-	private int width = 800, height = 500;
+	protected boolean debugMode = false;
+	protected int width = 800, height = 500;
 
 	private WindPongArguments() {
 	}
 
+	/**
+	 * Parses the specified arguments.
+	 *
+	 * @param args to parse
+	 * @return arguments
+	 */
 	public static WindPongArguments parse(String... args) {
 		WindPongArguments wpa = new WindPongArguments();
 		for (int i = 0; i < args.length; i++) {
@@ -27,17 +36,5 @@ public class WindPongArguments {
 			}
 		}
 		return wpa;
-	}
-
-	public boolean isDebugMode() {
-		return debugMode;
-	}
-
-	public int getWidth() {
-		return width;
-	}
-
-	public int getHeight() {
-		return height;
 	}
 }

@@ -16,27 +16,15 @@ import net.windwaker.pong.resource.sound.Sound;
 import net.windwaker.pong.resource.sound.SoundLoader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.Sys;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.*;
+import org.lwjgl.input.*;
+import org.lwjgl.opengl.*;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_LINES;
-import static org.lwjgl.opengl.GL11.GL_LINE_STIPPLE;
-import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
-import static org.lwjgl.opengl.GL11.GL_PROJECTION;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glLineStipple;
-import static org.lwjgl.opengl.GL11.glLoadIdentity;
-import static org.lwjgl.opengl.GL11.glMatrixMode;
-import static org.lwjgl.opengl.GL11.glOrtho;
-import static org.lwjgl.opengl.GL11.glVertex2f;
+import static org.lwjgl.opengl.GL11.*;
 
+/**
+ * A game of pong with pretty music.
+ */
 public class WindPongGame {
 	private int width, height;
 	private boolean debugMode;
@@ -53,14 +41,20 @@ public class WindPongGame {
 	private Sound music;
 	private Sound[] blips = new Sound[2];
 
+	/**
+	 * Returns what state the game is in.
+	 *
+	 * @return game state
+	 */
 	public GameState getState() {
 		return state;
 	}
 
-	public Sound getMusic() {
-		return music;
-	}
-
+	/**
+	 * Sets the state of the game.
+	 *
+	 * @param state to set
+	 */
 	public void setState(GameState state) {
 		boolean introTransition = false;
 		if (this.state == GameState.INTRO) {
@@ -88,14 +82,36 @@ public class WindPongGame {
 		this.state = state;
 	}
 
+	/**
+	 * Returns WindPong's soundtrack.
+	 *
+	 * @return music
+	 */
+	public Sound getMusic() {
+		return music;
+	}
+
+	/**
+	 * Returns the paddle on the left side of the screen.
+	 *
+	 * @return paddle on left side of screen
+	 */
 	public PaddleController getLeftPaddle() {
 		return leftPaddle;
 	}
 
+	/**
+	 * Returns the paddle on the right side of the screen.
+	 *
+	 * @return right side paddle
+	 */
 	public PaddleController getRightPaddle() {
 		return rightPaddle;
 	}
 
+	/**
+	 * Starts a new round.
+	 */
 	public void newRound() {
 		state = GameState.PAUSED;
 		resetEntityPositions();
@@ -104,65 +120,105 @@ public class WindPongGame {
 		debug("Round: " + ++round);
 	}
 
+	/**
+	 * Returns the width of the screen.
+	 *
+	 * @return width of screen
+	 */
 	public int getWidth() {
 		return width;
 	}
 
+	/**
+	 * Returns the height of the screen.
+	 *
+	 * @return screen height
+	 */
 	public int getHeight() {
 		return height;
 	}
 
+	/**
+	 * Returns true if debug info should be printed.
+	 *
+	 * @return true if prints debug info
+	 */
 	public boolean isDebugMode() {
 		return debugMode;
 	}
 
-	public void playRandomBlip() {
-		Random random = new Random();
-		blips[random.nextInt(2)].play();
-	}
-
+	/**
+	 * Prints debug info if the game is in debug mode.
+	 *
+	 * @param msg to send
+	 */
 	public void debug(String msg) {
 		if (debugMode) {
 			logger.info(msg);
 		}
 	}
 
+	/**
+	 * Returns the game logger.
+	 *
+	 * @return logger
+	 */
 	public Logger getLogger() {
 		return logger;
 	}
 
+	/**
+	 * Returns the input manager of the game.
+	 *
+	 * @return input manager
+	 */
 	public InputManager getInputManager() {
 		return inputManager;
 	}
 
+	/**
+	 * Returns the entity manager of the game.
+	 *
+	 * @return entity manager
+	 */
 	public EntityManager getEntityManager() {
 		return entityManager;
 	}
 
+	/**
+	 * Returns the resource manager of the game.
+	 *
+	 * @return resource manager
+	 */
 	public ResourceManager getResourceManager() {
 		return resourceManager;
 	}
 
+	/**
+	 * Plays a random 'blip'. Used for when the ball hits a paddle.
+	 */
+	public void playRandomBlip() {
+		Random random = new Random();
+		blips[random.nextInt(2)].play();
+	}
+
+	/**
+	 * Starts the game with the specified arguments.
+	 *
+	 * @param args to start with
+	 */
 	public void start(WindPongArguments args) {
 
-		debugMode = args.isDebugMode();
-		width  = args.getWidth();
-		height  = args.getHeight();
+		debugMode = args.debugMode;
+		width = args.width;
+		height = args.height;
 
 		unpackNatives();
 		createWindow();
 		initGl();
+		initAl();
 		createBall();
 		initBindings();
-
-		// setup sound system
-		Sound.initAl();
-		resourceManager.registerLoader(new SoundLoader());
-		music = (Sound) resourceManager.getResource("sound://sounds/intro.wav");
-		music.setLooping(true);
-		music.play();
-		blips[0] = (Sound) resourceManager.getResource("sound://sounds/blip_1.wav");
-		blips[1] = (Sound) resourceManager.getResource("sound://sounds/blip_2.wav");
 
 		startGameLoop();
 	}
@@ -240,7 +296,7 @@ public class WindPongGame {
 
 	private float getDelta() {
 		long time = getTime();
-		float dt = (float)(time - lastFrame) / 1000f;
+		float dt = (float) (time - lastFrame) / 1000f;
 		lastFrame = time;
 		return dt;
 	}
@@ -265,6 +321,16 @@ public class WindPongGame {
 		debug("Game loop ending.");
 		Display.destroy();
 		System.exit(0);
+	}
+
+	private void initAl() {
+		Sound.initAl();
+		resourceManager.registerLoader(new SoundLoader());
+		music = (Sound) resourceManager.getResource("sound://sounds/music.wav");
+		music.setLooping(true);
+		music.play();
+		blips[0] = (Sound) resourceManager.getResource("sound://sounds/blip_1.wav");
+		blips[1] = (Sound) resourceManager.getResource("sound://sounds/blip_2.wav");
 	}
 
 	private void initGl() {
@@ -295,7 +361,7 @@ public class WindPongGame {
 		// get the files required for the user's os
 		if (SystemUtils.IS_OS_WINDOWS) {
 			debug("Unpacking Windows natives...");
-			files = new String[] {
+			files = new String[]{
 					"jinput-dx8_64.dll", "jinput-dx8.dll", "jinput-raw_64.dll",
 					"jinput-raw.dll", "jinput-wintab.dll", "lwjgl.dll",
 					"lwjgl64.dll", "OpenAL32.dll", "OpenAL64.dll"
@@ -303,11 +369,11 @@ public class WindPongGame {
 			dir = "windows";
 		} else if (SystemUtils.IS_OS_MAC) {
 			debug("Unpacking Mac natives...");
-			files = new String[] {"libjinput-osx.jnilib", "liblwjgl.jnilib", "openal.dylib"};
+			files = new String[]{"libjinput-osx.jnilib", "liblwjgl.jnilib", "openal.dylib"};
 			dir = "mac";
 		} else if (SystemUtils.IS_OS_LINUX) {
 			debug("Unpacking Linux natives...");
-			files = new String[]{ "liblwjgl.so", "liblwjgl64.so", "libopenal.so",
+			files = new String[]{"liblwjgl.so", "liblwjgl64.so", "libopenal.so",
 					"libopenal64.so", "libjinput-linux.so", "libjinput-linux64.so"
 			};
 			dir = "linux";
@@ -316,14 +382,13 @@ public class WindPongGame {
 		}
 
 		// copy the files into the 'natives/os' dir
-		File f = new File("target/natives" + File.separator + dir);
+		File f = new File("natives" + File.separator + dir);
 		f.mkdirs();
 		debug("Copying natives into: '" + f.getPath() + "'.");
 		for (String file : files) {
 			File newFile = new File(f, file);
 			if (!newFile.exists()) {
 				try {
-
 					FileUtils.copyInputStreamToFile(WindPongGame.super.getClass().getResourceAsStream("/" + file), newFile);
 				} catch (IOException e) {
 					e.printStackTrace();

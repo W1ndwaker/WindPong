@@ -4,7 +4,6 @@ import java.io.InputStream;
 
 /**
  * Used for loading resources.
- *
  * @param <R> resource type
  */
 public abstract class ResourceLoader<R> {
@@ -16,7 +15,6 @@ public abstract class ResourceLoader<R> {
 
 	/**
 	 * Loads the resource from the specified input stream.
-	 *
 	 * @param in to load from
 	 * @return resource
 	 */
@@ -24,7 +22,6 @@ public abstract class ResourceLoader<R> {
 
 	/**
 	 * Returns the scheme of the resource to preface URIs.
-	 *
 	 * @return scheme
 	 */
 	public String getScheme() {
@@ -33,7 +30,8 @@ public abstract class ResourceLoader<R> {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof ResourceLoader && ((ResourceLoader) obj).getScheme().equals(getScheme());
+		return obj instanceof ResourceLoader
+				&& ((ResourceLoader) obj).getScheme().equals(getScheme());
 	}
 
 	@Override

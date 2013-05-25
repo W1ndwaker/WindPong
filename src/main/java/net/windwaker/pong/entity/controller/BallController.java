@@ -38,10 +38,8 @@ public class BallController extends RectangularController {
 	private void updateVelocity(int xf, int yf) {
 		float appliedForce = (float) (INITIAL_SPEED * Math.pow(1 + RATE_OF_SPEED, timesHit));
 		float vx = appliedForce * xf;
-		System.out.println("force: " + appliedForce);
 		float vy = random.nextFloat() * appliedForce * yf;
 		owner.setVelocity(vx, vy);
-		System.out.println("velocity: " + vx + "," + vy);
 	}
 
 	private int posOrNeg(Random random) {

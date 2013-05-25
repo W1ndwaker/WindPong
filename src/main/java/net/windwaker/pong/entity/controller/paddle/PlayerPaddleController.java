@@ -1,7 +1,7 @@
 package net.windwaker.pong.entity.controller.paddle;
 
 import net.windwaker.pong.entity.Entity;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.*;
 
 public class PlayerPaddleController extends PaddleController {
 	public static final float MAX_VELOCITY = 0.015f;

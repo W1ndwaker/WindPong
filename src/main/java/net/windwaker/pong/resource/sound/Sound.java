@@ -2,35 +2,11 @@ package net.windwaker.pong.resource.sound;
 
 import java.nio.FloatBuffer;
 
-import org.lwjgl.LWJGLException;
-import org.lwjgl.openal.AL;
-import org.lwjgl.openal.AL11;
-import org.lwjgl.openal.OpenALException;
+import org.lwjgl.*;
+import org.lwjgl.openal.*;
 
-import static org.lwjgl.BufferUtils.createFloatBuffer;
-import static org.lwjgl.openal.AL10.AL_BUFFER;
-import static org.lwjgl.openal.AL10.AL_FALSE;
-import static org.lwjgl.openal.AL10.AL_GAIN;
-import static org.lwjgl.openal.AL10.AL_LOOPING;
-import static org.lwjgl.openal.AL10.AL_NO_ERROR;
-import static org.lwjgl.openal.AL10.AL_ORIENTATION;
-import static org.lwjgl.openal.AL10.AL_PITCH;
-import static org.lwjgl.openal.AL10.AL_PLAYING;
-import static org.lwjgl.openal.AL10.AL_POSITION;
-import static org.lwjgl.openal.AL10.AL_SOURCE_STATE;
-import static org.lwjgl.openal.AL10.AL_TRUE;
-import static org.lwjgl.openal.AL10.AL_VELOCITY;
-import static org.lwjgl.openal.AL10.alGetError;
-import static org.lwjgl.openal.AL10.alGetSourcef;
-import static org.lwjgl.openal.AL10.alGetSourcei;
-import static org.lwjgl.openal.AL10.alListener;
-import static org.lwjgl.openal.AL10.alSource;
-import static org.lwjgl.openal.AL10.alSourcePause;
-import static org.lwjgl.openal.AL10.alSourcePlay;
-import static org.lwjgl.openal.AL10.alSourceRewind;
-import static org.lwjgl.openal.AL10.alSourceStop;
-import static org.lwjgl.openal.AL10.alSourcef;
-import static org.lwjgl.openal.AL10.alSourcei;
+import static org.lwjgl.BufferUtils.*;
+import static org.lwjgl.openal.AL10.*;
 
 /**
  * Represents a sound that can be played on the client.
@@ -43,12 +19,20 @@ public class Sound {
 		this.sourceId = sourceId;
 	}
 
+	/**
+	 * Initializes the sound and makes it able to play.
+	 */
 	public void init() {
 		setInteger(AL_BUFFER, bufferId);
-		alSource(sourceId, AL_POSITION, getEmptyBufferf3());
-		alSource(sourceId, AL_VELOCITY, getEmptyBufferf3());
+		alSource(sourceId, AL_POSITION, getEmptyBuffer3f());
+		alSource(sourceId, AL_VELOCITY, getEmptyBuffer3f());
 	}
 
+	/**
+	 * Returns true if the sound is playing.
+	 *
+	 * @return true if playing
+	 */
 	public boolean isPlaying() {
 		return getInteger(AL_SOURCE_STATE) == AL_PLAYING;
 	}
@@ -81,26 +65,60 @@ public class Sound {
 		alSourceRewind(sourceId);
 	}
 
+	/**
+	 * Returns the pitch of the sound. One is equivalent to one-hundred percent
+	 * of the original pitch.
+	 *
+	 * @return sound pitch
+	 */
 	public float getPitch() {
 		return getFloat(AL_PITCH);
 	}
 
+	/**
+	 * Sets the pitch of the sound. One is equivalent to one-hundred percent of
+	 * the original pitch.
+	 *
+	 * @param pitch to set
+	 */
 	public void setPitch(float pitch) {
 		setFloat(AL_PITCH, pitch);
 	}
 
+	/**
+	 * Returns the gain of the sound. One is equivalent to one-hundred percent of
+	 * the original gain.
+	 *
+	 * @return gain
+	 */
 	public float getGain() {
 		return getFloat(AL_GAIN);
 	}
 
+	/**
+	 * Sets the gain of the sound. One is equivalent to one-hundred percent of
+	 * the original gain.
+	 *
+	 * @param gain to set
+	 */
 	public void setGain(float gain) {
 		setFloat(AL_GAIN, gain);
 	}
 
+	/**
+	 * Returns true if this sound should start over when it is completed.
+	 *
+	 * @return true if loops
+	 */
 	public boolean isLooping() {
 		return getInteger(AL_LOOPING) == AL_TRUE;
 	}
 
+	/**
+	 * Sets if this sound should start over when it is completed.
+	 *
+	 * @param looping true if the sound should loop
+	 */
 	public void setLooping(boolean looping) {
 		if (looping == isLooping()) {
 			return;
@@ -108,10 +126,20 @@ public class Sound {
 		setInteger(AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
 	}
 
+	/**
+	 * Returns the position for this sound to rewind to in seconds.
+	 *
+	 * @return position in seconds
+	 */
 	public float getPlaybackPosition() {
 		return getFloat(AL11.AL_SEC_OFFSET);
 	}
 
+	/**
+	 * Sets the position for this sound to rewind to in seconds.
+	 *
+	 * @param secs to start at
+	 */
 	public void setPlaybackPosition(float secs) {
 		setFloat(AL11.AL_SEC_OFFSET, secs);
 	}
@@ -132,14 +160,14 @@ public class Sound {
 		alSourcei(sourceId, p, v);
 	}
 
-	private static FloatBuffer getEmptyBufferf3() {
-		FloatBuffer buff = createFloatBuffer(3).put(new float[] {0, 0, 0});
+	private static FloatBuffer getEmptyBuffer3f() {
+		FloatBuffer buff = createFloatBuffer(3).put(new float[]{0, 0, 0});
 		buff.flip();
 		return buff;
 	}
 
-	private static FloatBuffer getEmptyBufferf6() {
-		FloatBuffer buff = createFloatBuffer(6).put(new float[] {0, 0, -1, 0, 1, 0});
+	private static FloatBuffer getEmptyBuffer6f() {
+		FloatBuffer buff = createFloatBuffer(6).put(new float[]{0, 0, -1, 0, 1, 0});
 		buff.flip();
 		return buff;
 	}
@@ -159,9 +187,9 @@ public class Sound {
 
 		// one static listener for pong
 		// sounds are static as well
-		alListener(AL_POSITION, getEmptyBufferf3());
-		alListener(AL_VELOCITY, getEmptyBufferf3());
-		alListener(AL_ORIENTATION, getEmptyBufferf6());
+		alListener(AL_POSITION, getEmptyBuffer3f());
+		alListener(AL_VELOCITY, getEmptyBuffer3f());
+		alListener(AL_ORIENTATION, getEmptyBuffer6f());
 	}
 
 	/**

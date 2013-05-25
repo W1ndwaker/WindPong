@@ -1,11 +1,15 @@
 package net.windwaker.pong.resource;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import net.windwaker.pong.exception.resource.LoaderNotFoundException;
 
 /**
  * Resource management.
@@ -15,7 +19,6 @@ public class ResourceManager {
 
 	/**
 	 * Returns all registered loaders.
-	 *
 	 * @return registered loaders.
 	 */
 	public Set<ResourceLoader<?>> getLoaders() {
@@ -24,7 +27,6 @@ public class ResourceManager {
 
 	/**
 	 * Returns the loader with the specified scheme.
-	 *
 	 * @param scheme to get
 	 * @return loader scheme
 	 */
@@ -39,7 +41,6 @@ public class ResourceManager {
 
 	/**
 	 * Registers the loader.
-	 *
 	 * @param loader to register
 	 */
 	public void registerLoader(ResourceLoader<?> loader) {
@@ -49,31 +50,33 @@ public class ResourceManager {
 	/**
 	 * Returns the resource at the specified URI by loading it from the
 	 * URI scheme's loader.
-	 *
 	 * @param uri to look up
 	 * @return resource
 	 */
 	public Object getResource(URI uri) {
-		// get the input stream of the resource
-		InputStream in = ResourceManager.super.getClass().getResourceAsStream("/" + uri.getHost() + uri.getPath());
-		if (in == null) {
-			throw new IllegalArgumentException("could not find input stream");
-		}
-
 		// get the loader of the specified scheme
 		String scheme = uri.getScheme();
 		ResourceLoader<?> loader = getLoader(scheme);
 		if (loader == null) {
-			throw new IllegalArgumentException("could not find loader for scheme " + scheme);
+			throw new LoaderNotFoundException("could not find loader for scheme " + scheme);
 		}
 
-		return loader.load(in);
+		// load from the path
+		InputStream in = new BufferedInputStream(ResourceManager.class.getResourceAsStream("/" + uri.getHost() + uri.getPath()));
+		Object r = loader.load(in);
+
+		try {
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return r;
 	}
 
 	/**
 	 * Returns the resource at the specified URI by loading it from the
 	 * URI scheme's loader.
-	 *
 	 * @param uri to look up
 	 * @return resource
 	 */
