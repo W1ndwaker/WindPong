@@ -18,6 +18,7 @@ package net.windwaker.pong;
  */
 public class WindPongArguments {
 	protected boolean debugMode = false;
+	protected boolean drawCurves = false;
 	protected int width = 800, height = 500;
 
 	private WindPongArguments() {
@@ -45,6 +46,10 @@ public class WindPongArguments {
 				case "--height":
 				case "-h":
 					wpa.height = Integer.parseInt(args[i + 1]);
+					break;
+				case "-dc":
+				case "--drawcurves":
+					wpa.drawCurves = true;
 					break;
 			}
 		}

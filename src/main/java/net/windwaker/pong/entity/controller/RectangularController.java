@@ -28,8 +28,7 @@ public abstract class RectangularController extends Controller {
 		float width = owner.getWidth();
 		float height = owner.getHeight();
 
-		glBegin(GL_QUADS);
-		{
+		glBegin(GL_QUADS); {
 			glVertex2f(x, y); // top left
 			glVertex2f(x + width, y); // top right
 			glVertex2f(x + width, y - height); // bottom right

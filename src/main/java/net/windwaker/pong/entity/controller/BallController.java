@@ -20,12 +20,14 @@ import net.windwaker.pong.WindPongGame;
 import net.windwaker.pong.entity.Entity;
 import net.windwaker.pong.entity.controller.paddle.PaddleController;
 import net.windwaker.pong.resource.sound.Sound;
+import net.windwaker.pong.util.math.Curve;
 
 public class BallController extends RectangularController {
 	public static final float INITIAL_SPEED = 0.006f;
 	public static final float TOP = 0.98f;
 	public static final float RATE_OF_SPEED = 0.03f;
 	private int timesHit = 0;
+	private Curve curve;
 	private final Random random = new Random();
 
 	/*
@@ -46,6 +48,7 @@ public class BallController extends RectangularController {
 		timesHit = 0;
 		updateVelocity(posOrNeg(random), posOrNeg(random));
 		owner.getGame().getMusic().setPitch(1);
+		curve = null;
 	}
 
 	private void updateVelocity(int xf, int yf) {
@@ -76,7 +79,17 @@ public class BallController extends RectangularController {
 		// invert velocity
 		timesHit++;
 		float vx = owner.getVelocityX(), vy = owner.getVelocityY();
-		updateVelocity(opp(vx), opp(vy));
+
+		// try curve
+		curve = null;
+		float evy = entity.getVelocityY();
+		float maxV = PaddleController.MAX_VELOCITY / 3;
+		if ((evy >= maxV || evy <= -maxV) && random.nextBoolean()) {
+			curve = new Curve(evy > 0 ? -0.5f : 0.5f, 2, 0.5f, owner.getY());
+			System.out.println("curving...");
+		}
+
+		updateVelocity(opp(vx), curve == null ? opp(vy) : 0);
 		WindPongGame game = owner.getGame();
 		game.debug("Times hit: " + timesHit);
 		game.playRandomBlip();
@@ -101,6 +114,7 @@ public class BallController extends RectangularController {
 		PaddleController leftPaddle = game.getLeftPaddle();
 		GameState state = game.getState();
 
+		// handle scoring
 		boolean scored = false;
 		if (x <= 0) {
 			if (state == GameState.INTRO) {
@@ -135,7 +149,17 @@ public class BallController extends RectangularController {
 
 		// bounce of ceil
 		if (y >= TOP || y <= height + 0.02f) {
+			curve = null;
 			owner.setVelocityY(-vy);
+			return;
+		}
+
+		// set the y if the ball is on a curve
+		if (curve != null) {
+			if (game.shouldDrawCurves()) {
+				curve.draw();
+			}
+			owner.setY(curve.getY(x));
 			return;
 		}
 

@@ -18,6 +18,9 @@ import net.windwaker.pong.entity.Entity;
 import net.windwaker.pong.entity.controller.RectangularController;
 
 public abstract class PaddleController extends RectangularController {
+	public static final float MAX_VELOCITY = 0.015f;
+	public static final float APPLIED_FORCE = 0.001f;
+	public static final float FRICTION = 0.0001f;
 	public static final float TOP = 0.98f;
 	private int score = 0;
 
@@ -44,6 +47,12 @@ public abstract class PaddleController extends RectangularController {
 		if (y >= TOP || y <= height) {
 			owner.setVelocityY(-vy);
 			return;
+		}
+
+		if (vy > 0) {
+			owner.setVelocityY(Math.max(0, vy - FRICTION));
+		} else if (vy < 0) {
+			owner.setVelocityY(Math.min(0, vy + FRICTION));
 		}
 	}
 

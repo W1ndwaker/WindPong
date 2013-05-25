@@ -41,6 +41,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class WindPongGame {
 	private int width, height;
 	private boolean debugMode;
+	private boolean drawCurves;
 	private long lastFrame;
 	private final Logger logger = Logger.getLogger("WindPong");
 	private final InputManager inputManager = new InputManager(this);
@@ -53,6 +54,15 @@ public class WindPongGame {
 	private int round = 1;
 	private Sound music;
 	private Sound[] blips = new Sound[2];
+
+	/**
+	 * Returns true if the game draw the balls curved paths.
+	 *
+	 * @return true if should draw path
+	 */
+	public boolean shouldDrawCurves() {
+		return drawCurves;
+	}
 
 	/**
 	 * Returns what state the game is in.
@@ -225,6 +235,7 @@ public class WindPongGame {
 		debugMode = args.debugMode;
 		width = args.width;
 		height = args.height;
+		drawCurves = args.drawCurves;
 
 		unpackNatives();
 		createWindow();
